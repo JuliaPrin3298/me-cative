@@ -1,0 +1,43 @@
+
+.status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 1vw, 12px);
+  width: 100%;
+  padding: clamp(6px, 1vw, 12px);
+  background: url("/assets/textures/madeira.png") center / cover;
+  border: clamp(2px, 0.3vw, 3px) solid #75421f;
+  border-radius: clamp(10px, 1.5vw, 20px);
+  box-shadow: 0 3px 0 rgb(70 38 17 / 20%);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(5px, 0.8vw, 10px);
+  min-width: 0;
+}
+
+.status-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(24px, 3.5vw, 48px);
+  flex-shrink: 0;
+  font-size: clamp(16px, 2.2vw, 30px);
+}
+
+.status-track {
+  flex: 1;
+  min-width: 0;
+  height: clamp(12px, 2vw, 28px);
+  overflow: hidden;
+  border: 2px solid #75421f;
+  border-radius: 999px;
+  background: #ead5ac;
+}
+
+.status-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 250ms ease;
+}
