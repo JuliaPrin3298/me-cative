@@ -1,6 +1,9 @@
 
 import "./App.css";
+
 import { InteractiveObject } from "./components/hud/interactives";
+import { HUD } from "./components/hud/Hud";
+
 
 function App() {
   return (
@@ -10,10 +13,12 @@ function App() {
           className="field-background"
           aria-label="Campo durante o dia"
         />
-
-
-
-
+         <HUD
+          stars={1200}
+          onOpenRanking={() => console.log("Abrir ranking")}
+          onToggleMusic={() => console.log("Alternar música")}
+          onOpenMinigames={() => console.log("Abrir minijogos")}
+        />
 
         {/* Objetos interativos do cenário */}
         <InteractiveObject
@@ -47,7 +52,7 @@ function App() {
           width="13%"
           onClick={() => console.log("Abrir cesta")}
         />
-
+       
       </div>
     </main>
   );
