@@ -1,0 +1,140 @@
+
+.currency-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(5px, 1vw, 12px);
+  width: 100%;
+  min-width: 0;
+  padding: clamp(5px, 0.8vw, 8px) clamp(8px, 1.2vw, 18px);
+  border: clamp(2px, 0.3vw, 3px) solid #75421f;
+  border-radius: clamp(10px, 1.3vw, 18px);
+  background: url("/assets/textures/madeira.png") center / cover;
+  color: #21170f;
+  font-size: clamp(16px, 2.5vw, 32px);
+  font-weight: bold;
+}
+
+.currency-icon {
+  width: clamp(20px, 3vw, 42px);
+  height: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.hud-icon-button {
+  display: grid;
+  place-items: center;
+  width: clamp(56px, 8vw, 110px);
+  aspect-ratio: 1;
+  padding: 7px;
+  border: 3px solid #8A6A44;
+  border-radius: 50%;
+  background: url("/assets/textures/madeira.png") center / cover;
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.hud-icon-button:hover {
+  transform: scale(1.05);
+}
+
+.hud-icon-button:focus-visible {
+  outline: 3px solid #2d5bb9;
+  outline-offset: 3px;
+}
+
+.hud-icon-button img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+
+.hud-icon-button.is-active {
+  box-shadow: inset 0 0 0 3px #e7c66d;
+}
+
+.game-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.game-hud button {
+  pointer-events: auto;
+}
+
+.hud-status,
+.hud-currency,
+.hud-actions,
+.hud-minigames {
+  position: absolute;
+}
+/*Status*/
+.hud-status {
+  top: 2%;
+  left: 1%;
+  width: clamp(150px, 26%, 340px);
+}
+
+/*Moedas*/
+.hud-currency {
+  top: 2%;
+  left: 60%;
+  width: clamp(110px, 18%, 220px);
+}
+
+/*Botões de ação*/
+.hud-actions {
+  top: 2%;
+  right: 2%;
+  display: flex;
+  gap: 12px;
+}
+
+.hud-minigames {
+  right: 2%;
+  bottom: 2%;
+}
+
+
+/* Telas médias */
+@media (max-width: 900px) {
+  .hud-status {
+    width: clamp(140px, 28%, 250px);
+  }
+
+  .hud-currency {
+    left: 52%;
+    width: clamp(100px, 17%, 170px);
+  }
+}
+
+/* Celulares */
+@media (max-width: 600px) {
+  .hud-status {
+    top: 8px;
+    left: 8px;
+    width: min(48%, 190px);
+  }
+
+  .hud-currency {
+    top: auto;
+    left: auto;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+  }
+
+  .hud-minigames {
+    right: 8px;
+    bottom: 76px;
+  }
+
+  .hud-actions {
+    top: 8px;
+    right: 8px;
+    gap: 4px;
+  }
+}
