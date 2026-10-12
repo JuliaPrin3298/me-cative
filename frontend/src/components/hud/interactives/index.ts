@@ -1,0 +1,2 @@
+
+export { InteractiveObject } from "./InteractiveObject";
