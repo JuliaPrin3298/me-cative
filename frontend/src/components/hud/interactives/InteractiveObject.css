@@ -1,0 +1,62 @@
+
+.interactive-object {
+  position: absolute;
+  z-index: 5;
+
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center bottom;
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.interactive-object img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.interactive-object:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 4px 5px rgb(50 40 20 / 18%));
+  z-index: 6;
+}
+
+.interactive-object:active {
+  transform: scale(1.03);
+}
+
+.interactive-object:focus-visible {
+  outline: 3px solid #2d5bb9;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* Em dispositivos sem hover, evita efeitos presos ao toque */
+@media (hover: none) {
+  .interactive-object:hover {
+    transform: none;
+    filter: none;
+  }
+
+  .interactive-object:active {
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interactive-object {
+    transition: none;
+  }
+}
