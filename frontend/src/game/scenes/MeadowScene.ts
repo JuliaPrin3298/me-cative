@@ -39,7 +39,7 @@ export class MeadowScene extends Phaser.Scene {
         this.load.image("fox-paw-left-2", "/assets/fox/raposa-pata-esq2.png");
 
         this.load.image("sun", "/assets/objects/sol.png");
-        this.load.image("cloud", "/assets/objects/nuvem.png");
+        this.load.image("cloud", "/assets/objects/nuvem1.png");
         this.load.image("cloud2", "/assets/objects/nuvem2.png");
         this.load.image("cloud3", "/assets/objects/nuvem3.png");
         this.load.image("cloud4", "/assets/objects/nuvem4.png");
