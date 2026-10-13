@@ -12,6 +12,7 @@ import {
   MinigamesModal,
   RankingModal,
 } from "./components/modals";
+import { PhaserGame } from "./game/PhaserGame";
 
 
 function App() {
@@ -37,7 +38,8 @@ type ModalType =
           onToggleMusic={() => console.log("Alternar música")}
           onOpenMinigames={() => setActiveModal("minigames")}
         />
-
+        <PhaserGame />
+        
         {/* Objetos interativos do cenário */}
         <InteractiveObject
           label="Mochila"
