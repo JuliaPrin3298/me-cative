@@ -37,6 +37,13 @@ export class MeadowScene extends Phaser.Scene {
         this.load.image("fox-paw-right-2", "/assets/fox/raposa-pata-dir2.png");
         this.load.image("fox-paw-left-1", "/assets/fox/raposa-pata-esq1.png");
         this.load.image("fox-paw-left-2", "/assets/fox/raposa-pata-esq2.png");
+
+        this.load.image("sun", "/assets/objects/sol.png");
+        this.load.image("cloud", "/assets/objects/nuvem.png");
+        this.load.image("cloud2", "/assets/objects/nuvem2.png");
+        this.load.image("cloud3", "/assets/objects/nuvem3.png");
+        this.load.image("cloud4", "/assets/objects/nuvem4.png");
+
     }
 
     create() {
@@ -45,6 +52,78 @@ export class MeadowScene extends Phaser.Scene {
         const foxX = width * 0.5;
         const foxY = height * 0.62;
         const foxWidth = width * 0.12;
+
+        
+        // Sol do cenário
+        const sun = this.add.image(
+            width * 0.82,
+            height * 0.16,
+            "sun",
+        );
+
+        sun.setDisplaySize(
+            width * 0.10,
+            width * 0.10,
+        );
+
+        sun.setDepth(-10);
+
+        // Nuvens do cenário
+        const cloud1 = this.add.image(
+            width * 0.18,
+            height * 0.20,
+            "cloud",
+        );
+
+        const cloud2 = this.add.image(
+            width * 0.65,
+            height * 0.13,
+            "cloud2",
+        );
+
+        const cloud3 = this.add.image(
+            width * 0.40,
+            height * 0.28,
+            "cloud3",
+        );
+
+        const cloud4 = this.add.image(
+            width * 0.88,
+            height * 0.30,
+            "cloud4",
+        );
+
+        const clouds = [cloud1, cloud2, cloud3, cloud4];
+
+        clouds.forEach((cloud, index) => {
+            cloud.setDisplaySize(
+                width * 0.16,
+                width * 0.09,
+            );
+
+            cloud.setDepth(-9);
+
+            this.tweens.add({
+                targets: cloud,
+                x: cloud.x + (index % 2 === 0 ? 35 : -35),
+                duration: 7000 + index * 1500,
+                yoyo: true,
+                repeat: -1,
+                ease: "Sine.easeInOut",
+            });
+        });
+
+        // Pulsação delicada do sol
+        this.tweens.add({
+            targets: sun,
+            scaleX: sun.scaleX * 1.05,
+            scaleY: sun.scaleY * 1.05,
+            duration: 2200,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut",
+        });
+
 
         // Corpo como referência de escala
         const body = this.add.image(0, 0, "fox-body");
