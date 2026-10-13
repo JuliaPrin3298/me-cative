@@ -54,58 +54,77 @@ export class MeadowScene extends Phaser.Scene {
 
         // Cauda atrás do corpo
         const tail = this.add.image(
-            foxX + foxWidth * 0.12,
-            foxY - foxWidth * 0.05,
+            -foxWidth * 0.70,
+            -foxWidth * 0.20,
             "fox-tail",
-        );
-        tail.setScale(scale);
-        tail.setDepth(1);
+        ).setScale(scale);
 
         // Corpo à frente da cauda
         body.setDepth(2);
 
         // Cabeça
         const head = this.add.image(
-            foxX,
-            foxY - foxWidth * 0.42,
+            foxWidth * 0,
+            -foxWidth * 0.80,
             "fox-head",
-        );
-        head.setScale(scale);
-        head.setDepth(3);
+        ).setScale(scale);
 
         // Orelhas: ficam atrás da cabeça
         const earLeft = this.add.image(
-            foxX - foxWidth * 0.10,
-            foxY - foxWidth * 0.62,
+            -foxWidth * 0.38,
+            -foxWidth * 1.17,
             "fox-ear-left",
-        );
-        earLeft.setScale(scale);
-        earLeft.setDepth(2.5);
+        ).setScale(scale);
 
         const earRight = this.add.image(
-            foxX + foxWidth * 0.10,
-            foxY - foxWidth * 0.62,
+            foxWidth * 0.38,
+            -foxWidth * 1.17,
             "fox-ear-right",
-        );
-        earRight.setScale(scale);
-        earRight.setDepth(2.5);
+        ).setScale(scale);
 
         // Olhos na frente da cabeça
         const eyes = this.add.image(
-            foxX,
-            foxY - foxWidth * 0.42,
+            foxWidth * 0.06,
+            -foxWidth * 0.69,
             "fox-eye-open",
-        );
-        eyes.setScale(scale);
-        eyes.setDepth(4);
+        ).setScale(scale);
+
+        // Patas: ficam a frente do corpo
+        const pawRight1 = this.add.image(
+            foxWidth * 0.25,
+            foxWidth * 0.25,
+            "fox-paw-right-1",
+        ).setScale(scale);
+
+        const pawRight2 = this.add.image(
+            foxWidth * 0.38,
+            foxWidth * 0.40,
+            "fox-paw-right-2",
+        ).setScale(scale);
+
+        const pawLeft1 = this.add.image(
+            -foxWidth * 0.25,
+            foxWidth * 0.30,
+            "fox-paw-left-1",
+        ).setScale(scale);
+
+        const pawLeft2 = this.add.image(
+            -foxWidth * 0.48,
+            foxWidth * 0.40,
+            "fox-paw-left-2",
+        ).setScale(scale);
 
         this.foxContainer = this.add.container(0, 0, [
             tail,
+            pawLeft2,
+            pawRight2,
             body,
             earLeft,
             earRight,
             head,
             eyes,
+            pawLeft1,
+            pawRight1,
         ]);
 
         this.positionFox();
