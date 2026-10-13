@@ -4,6 +4,9 @@ import Phaser from "phaser";
 export class MeadowScene extends Phaser.Scene {
 
     private foxContainer!: Phaser.GameObjects.Container;
+    private foxHead!: Phaser.GameObjects.Image;
+    private isHeadAnimating = false;
+    private headGroup!: Phaser.GameObjects.Container;
 
     private positionFox() {
         if (!this.foxContainer) return;
@@ -79,7 +82,7 @@ export class MeadowScene extends Phaser.Scene {
             "fox-head",
         ).setScale(scale);
 
-        // Orelhas: ficam atrás da cabeça
+        // Orelhas
         const earLeft = this.add.image(
             -foxWidth * 0.38,
             -foxWidth * 1.17,
@@ -92,12 +95,42 @@ export class MeadowScene extends Phaser.Scene {
             "fox-ear-right",
         ).setScale(scale);
 
-        // Olhos na frente da cabeça
+        // Olhos
         const eyes = this.add.image(
             foxWidth * 0.06,
             -foxWidth * 0.69,
             "fox-eye-open",
         ).setScale(scale);
+
+        this.foxHead = head;
+
+        // Grupo para inclinar cabeça, orelhas e olhos juntos
+        const headGroup = this.add.container(
+            0,
+            -foxWidth * 0.80,
+            [earLeft, earRight, head, eyes],
+        );
+
+        // Mantém a referência para a animação
+        this.headGroup = headGroup;
+
+        // Ajusta as posições locais sem alterar a posição visual original
+        earLeft.setPosition(
+            -foxWidth * 0.38,
+            -foxWidth * 0.37,
+        );
+
+        earRight.setPosition(
+            foxWidth * 0.38,
+            -foxWidth * 0.37,
+        );
+
+        head.setPosition(0, -foxWidth * 0);
+
+        eyes.setPosition(
+            foxWidth * 0.06,
+            foxWidth * 0.11,
+        );
 
         // Animação de piscar dos olhos
         this.time.addEvent({
@@ -111,7 +144,6 @@ export class MeadowScene extends Phaser.Scene {
             },
             loop: true,
         });
-
 
         // Patas: ficam a frente do corpo
         const pawRight1 = this.add.image(
@@ -143,13 +175,28 @@ export class MeadowScene extends Phaser.Scene {
             pawLeft2,
             pawRight2,
             body,
-            earLeft,
-            earRight,
-            head,
-            eyes,
+            headGroup,
             pawLeft1,
             pawRight1,
         ]);
+
+        
+        // Área clicável para testar a inclinação da cabeça
+        this.foxContainer.setInteractive(
+            new Phaser.Geom.Rectangle(
+                -foxWidth,
+                -foxWidth * 1.5,
+                foxWidth * 2,
+                foxWidth * 2,
+            ),
+            Phaser.Geom.Rectangle.Contains,
+        );
+
+        // Ao clicar na Raposa, ela inclina a cabeça
+        this.foxContainer.on("pointerdown", () => {
+            this.tiltHead();
+        });
+
 
         // Animação de respiração suave
         this.tweens.add({
@@ -163,8 +210,29 @@ export class MeadowScene extends Phaser.Scene {
 
         this.positionFox();
 
+        
+
         this.scale.on("resize", () => {
-            this.positionFox();
+        this.positionFox();
+    });
+    }
+
+    // Faz a Raposa inclinar a cabeça quando o jogador interage.
+        public tiltHead() {
+        if (this.isHeadAnimating || !this.headGroup) return;
+
+        this.isHeadAnimating = true;
+
+        this.tweens.add({
+            targets: this.headGroup,
+            angle: 12,
+            duration: 250,
+            yoyo: true,
+            ease: "Sine.easeInOut",
+            onComplete: () => {
+                this.headGroup.setAngle(0);
+                this.isHeadAnimating = false;
+            },
         });
     }
 
