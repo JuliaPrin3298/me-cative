@@ -89,6 +89,20 @@ export class MeadowScene extends Phaser.Scene {
             "fox-eye-open",
         ).setScale(scale);
 
+        // Animação de piscar dos olhos
+        this.time.addEvent({
+            delay: 3000,
+            callback: () => {
+                eyes.setTexture("fox-eye-closed");
+
+                this.time.delayedCall(150, () => {
+                    eyes.setTexture("fox-eye-open");
+                });
+            },
+            loop: true,
+        });
+
+
         // Patas: ficam a frente do corpo
         const pawRight1 = this.add.image(
             foxWidth * 0.25,
@@ -126,6 +140,16 @@ export class MeadowScene extends Phaser.Scene {
             pawLeft1,
             pawRight1,
         ]);
+
+        // Animação de respiração suave
+        this.tweens.add({
+            targets: body,
+            y: body.y - foxWidth * 0.015,
+            duration: 1200,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut",
+        });
 
         this.positionFox();
 
