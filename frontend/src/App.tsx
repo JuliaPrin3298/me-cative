@@ -1,11 +1,29 @@
 
 import "./App.css";
+import { useState } from "react";
 
-import { InteractiveObject } from "./components/hud/interactives";
+import { InteractiveObject } from "./components/interactives";
 import { HUD } from "./components/hud/Hud";
+import {
+  BrushModal,
+  InventoryModal,
+  RestModal,
+  FeedingModal,
+  MinigamesModal,
+  RankingModal,
+} from "./components/modals";
 
 
 function App() {
+type ModalType =
+  | "brush"
+  | "inventory"
+  | "rest"
+  | "feeding"
+  | "minigames"
+  | "ranking";
+
+  const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   return (
     <main className="game-screen">
       <div className="game-frame">
@@ -13,11 +31,11 @@ function App() {
           className="field-background"
           aria-label="Campo durante o dia"
         />
-         <HUD
+        <HUD
           stars={1200}
-          onOpenRanking={() => console.log("Abrir ranking")}
+          onOpenRanking={() => setActiveModal("ranking")}
           onToggleMusic={() => console.log("Alternar música")}
-          onOpenMinigames={() => console.log("Abrir minijogos")}
+          onOpenMinigames={() => setActiveModal("minigames")}
         />
 
         {/* Objetos interativos do cenário */}
@@ -26,7 +44,7 @@ function App() {
           image="/assets/objects/mochila.png"
           position={{ left: "2%", top: "58%" }}
           width="10%"
-          onClick={() => console.log("Abrir mochila")}
+          onClick={() => setActiveModal("inventory")}
         />
 
         <InteractiveObject
@@ -34,7 +52,7 @@ function App() {
           image="/assets/objects/arvore.png"
           position={{ left: "80%", top: "25%" }}
           width="15%"
-          onClick={() => console.log("Interagir com a árvore")}
+          onClick={() => setActiveModal("rest")}
         />
 
         <InteractiveObject
@@ -42,7 +60,7 @@ function App() {
           image="/assets/objects/pente.png"
           position={{ left: "28%", top: "72%" }}
           width="8%"
-          onClick={() => console.log("Interagir com o pente")}
+          onClick={() => setActiveModal("brush")}
         />
 
         <InteractiveObject
@@ -50,9 +68,32 @@ function App() {
           image="/assets/objects/cesta.png"
           position={{ left: "68%", top: "68%" }}
           width="13%"
-          onClick={() => console.log("Abrir cesta")}
+          onClick={() => setActiveModal("feeding")}
         />
-       
+
+        {activeModal === "brush" && (
+          <BrushModal onClose={() => setActiveModal(null)} />
+        )}
+
+        {activeModal === "inventory" && (
+          <InventoryModal onClose={() => setActiveModal(null)} />
+        )}
+
+        {activeModal === "rest" && (
+          <RestModal onClose={() => setActiveModal(null)} />
+        )}
+
+        {activeModal === "feeding" && (
+          <FeedingModal onClose={() => setActiveModal(null)} />
+        )}
+        {activeModal === "minigames" && (
+          <MinigamesModal onClose={() => setActiveModal(null)} />
+        )}
+
+        {activeModal === "ranking" && (
+          <RankingModal onClose={() => setActiveModal(null)} />
+        )}
+
       </div>
     </main>
   );
