@@ -59,6 +59,16 @@ export class MeadowScene extends Phaser.Scene {
             "fox-tail",
         ).setScale(scale);
 
+        // Animação suave da cauda
+        this.tweens.add({
+            targets: tail,
+            angle: { from: -1.5, to: 1.5 },
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+            ease: "Sine.easeInOut",
+        });
+
         // Corpo à frente da cauda
         body.setDepth(2);
 
