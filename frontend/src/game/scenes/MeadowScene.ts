@@ -125,6 +125,30 @@ export class MeadowScene extends Phaser.Scene {
             -foxWidth * 0.37,
         );
 
+        
+        // Movimento ocasional da orelha esquerda
+        this.tweens.add({
+            targets: earLeft,
+            angle: -5,
+            duration: 350,
+            yoyo: true,
+            repeat: -1,
+            repeatDelay: 2200,
+            ease: "Sine.easeInOut",
+        });
+
+        // Movimento ocasional da orelha direita
+        this.tweens.add({
+            targets: earRight,
+            angle: 4,
+            duration: 400,
+            yoyo: true,
+            repeat: -1,
+            repeatDelay: 3200,
+            ease: "Sine.easeInOut",
+        });
+
+
         head.setPosition(0, -foxWidth * 0);
 
         eyes.setPosition(
