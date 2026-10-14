@@ -4,12 +4,16 @@ import Phaser from "phaser";
 export class MeadowScene extends Phaser.Scene {
 
     private foxContainer!: Phaser.GameObjects.Container;
+    private foxBaseWidth = 0;
+    private foxBaseHeight = 0;
     private foxHead!: Phaser.GameObjects.Image;
     private isHeadAnimating = false;
     private headGroup!: Phaser.GameObjects.Container;
 
     private positionFox() {
-        if (!this.foxContainer) return;
+        if (!this.foxContainer || !this.foxBaseWidth || !this.foxBaseHeight) {
+            return;
+        }
 
         const { width, height } = this.scale;
 
@@ -17,7 +21,15 @@ export class MeadowScene extends Phaser.Scene {
             width * 0.5,
             height * 0.62,
         );
+
+        const scaleX = width / this.foxBaseWidth;
+        const scaleY = height / this.foxBaseHeight;
+
+        this.foxContainer.setScale(
+            Math.min(scaleX, scaleY) * 0.85,
+        );
     }
+
     constructor() {
         super("MeadowScene");
     }
@@ -53,7 +65,10 @@ export class MeadowScene extends Phaser.Scene {
         const foxY = height * 0.62;
         const foxWidth = width * 0.12;
 
-        
+        this.foxBaseWidth = width;
+        this.foxBaseHeight = height;
+
+
         // Sol do cenário
         const sun = this.add.image(
             width * 0.82,
@@ -204,7 +219,7 @@ export class MeadowScene extends Phaser.Scene {
             -foxWidth * 0.37,
         );
 
-        
+
         // Movimento ocasional da orelha esquerda
         this.tweens.add({
             targets: earLeft,
@@ -283,7 +298,7 @@ export class MeadowScene extends Phaser.Scene {
             pawRight1,
         ]);
 
-        
+
         // Área clicável para testar a inclinação da cabeça
         this.foxContainer.setInteractive(
             new Phaser.Geom.Rectangle(
@@ -313,15 +328,15 @@ export class MeadowScene extends Phaser.Scene {
 
         this.positionFox();
 
-        
+
 
         this.scale.on("resize", () => {
-        this.positionFox();
-    });
+            this.positionFox();
+        });
     }
 
     // Faz a Raposa inclinar a cabeça quando o jogador interage.
-        public tiltHead() {
+    public tiltHead() {
         if (this.isHeadAnimating || !this.headGroup) return;
 
         this.isHeadAnimating = true;
