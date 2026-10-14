@@ -4,12 +4,18 @@ import Phaser from "phaser";
 export class MeadowScene extends Phaser.Scene {
 
     private foxContainer!: Phaser.GameObjects.Container;
+    private foxBaseWidth = 0;
+    private foxBaseHeight = 0;
     private foxHead!: Phaser.GameObjects.Image;
     private isHeadAnimating = false;
     private headGroup!: Phaser.GameObjects.Container;
+    private sun!: Phaser.GameObjects.Image;
+    private clouds: Phaser.GameObjects.Image[] = [];
 
     private positionFox() {
-        if (!this.foxContainer) return;
+        if (!this.foxContainer || !this.foxBaseWidth || !this.foxBaseHeight) {
+            return;
+        }
 
         const { width, height } = this.scale;
 
@@ -17,7 +23,15 @@ export class MeadowScene extends Phaser.Scene {
             width * 0.5,
             height * 0.62,
         );
+
+        const scaleX = width / this.foxBaseWidth;
+        const scaleY = height / this.foxBaseHeight;
+
+        this.foxContainer.setScale(
+            Math.min(scaleX, scaleY) * 0.85,
+        );
     }
+
     constructor() {
         super("MeadowScene");
     }
@@ -53,20 +67,23 @@ export class MeadowScene extends Phaser.Scene {
         const foxY = height * 0.62;
         const foxWidth = width * 0.12;
 
-        
+        this.foxBaseWidth = width;
+        this.foxBaseHeight = height;
+
+
         // Sol do cenário
-        const sun = this.add.image(
+        this.sun = this.add.image(
             width * 0.82,
             height * 0.16,
             "sun",
         );
 
-        sun.setDisplaySize(
+        this.sun.setDisplaySize(
             width * 0.10,
             width * 0.10,
         );
 
-        sun.setDepth(-10);
+        this.sun.setDepth(-10);
 
         // Nuvens do cenário
         const cloud1 = this.add.image(
@@ -93,9 +110,9 @@ export class MeadowScene extends Phaser.Scene {
             "cloud4",
         );
 
-        const clouds = [cloud1, cloud2, cloud3, cloud4];
+        this.clouds = [cloud1, cloud2, cloud3, cloud4];
 
-        clouds.forEach((cloud, index) => {
+        this.clouds.forEach((cloud, index) => {
             cloud.setDisplaySize(
                 width * 0.16,
                 width * 0.09,
@@ -103,25 +120,18 @@ export class MeadowScene extends Phaser.Scene {
 
             cloud.setDepth(-9);
 
+            const movement = this.scale.width * (
+                this.scale.width < 600 ? 0.015 : 0.025
+            );
+
             this.tweens.add({
                 targets: cloud,
-                x: cloud.x + (index % 2 === 0 ? 35 : -35),
+                x: cloud.x + (index % 2 === 0 ? movement : -movement),
                 duration: 7000 + index * 1500,
                 yoyo: true,
                 repeat: -1,
                 ease: "Sine.easeInOut",
             });
-        });
-
-        // Pulsação delicada do sol
-        this.tweens.add({
-            targets: sun,
-            scaleX: sun.scaleX * 1.05,
-            scaleY: sun.scaleY * 1.05,
-            duration: 2200,
-            yoyo: true,
-            repeat: -1,
-            ease: "Sine.easeInOut",
         });
 
 
@@ -204,7 +214,7 @@ export class MeadowScene extends Phaser.Scene {
             -foxWidth * 0.37,
         );
 
-        
+
         // Movimento ocasional da orelha esquerda
         this.tweens.add({
             targets: earLeft,
@@ -283,7 +293,7 @@ export class MeadowScene extends Phaser.Scene {
             pawRight1,
         ]);
 
-        
+
         // Área clicável para testar a inclinação da cabeça
         this.foxContainer.setInteractive(
             new Phaser.Geom.Rectangle(
@@ -312,16 +322,70 @@ export class MeadowScene extends Phaser.Scene {
         });
 
         this.positionFox();
-
-        
+        this.positionSkyElements();
 
         this.scale.on("resize", () => {
-        this.positionFox();
-    });
+            this.positionFox();
+            this.positionSkyElements();
+        });
     }
 
+    private positionSkyElements() {
+        const { width, height } = this.scale;
+
+        if (this.sun) {
+            this.sun.setPosition(width * 0.42, height * 0.20);
+
+            const sunSize = Phaser.Math.Clamp(
+                Math.min(width * 0.065, height * 0.10),
+                60,
+                100,
+            );
+
+            this.sun.setDisplaySize(sunSize, sunSize);
+        }
+
+        const isMobile = width < 600;
+
+        const positions = isMobile
+            ? [
+                { x: 0.16, y: 0.14 },
+                { x: 0.72, y: 0.12 },
+                { x: 0.30, y: 0.27 },
+                { x: 0.82, y: 0.29 },
+            ]
+            : [
+                { x: 0.12, y: 0.20 },
+                { x: 0.38, y: 0.12 },
+                { x: 0.65, y: 0.24 },
+                { x: 0.88, y: 0.15 },
+            ];
+
+        this.clouds.forEach((cloud, index) => {
+            const position = positions[index];
+
+            if (!position) return;
+
+            const cloudWidth = Phaser.Math.Clamp(
+                width * 0.16,
+                90,
+                220,
+            );
+
+            const cloudHeight = cloudWidth * 0.5625;
+
+            cloud.setPosition(
+                width * position.x,
+                height * position.y,
+            );
+
+            cloud.setDisplaySize(cloudWidth, cloudHeight);
+        });
+    }
+
+
     // Faz a Raposa inclinar a cabeça quando o jogador interage.
-        public tiltHead() {
+    public tiltHead() {
         if (this.isHeadAnimating || !this.headGroup) return;
 
         this.isHeadAnimating = true;
