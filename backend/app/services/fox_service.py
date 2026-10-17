@@ -21,3 +21,17 @@ def pentear_raposa(db: Session, raposa: Fox) -> Fox:
     db.refresh(raposa)
 
     return raposa
+
+def colocar_raposa_para_dormir(
+    db: Session,
+    raposa: Fox,
+    minutos: int,
+) -> Fox:
+    raposa.energia = min(100, raposa.energia + (10 * minutos))
+    raposa.fome = max(0, raposa.fome - (2 * minutos))
+    raposa.humor = max(0, raposa.humor - (1 * minutos))
+
+    db.commit()
+    db.refresh(raposa)
+
+    return raposa
