@@ -1,6 +1,7 @@
 
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getWallet, getInventory } from "./services/api";
 
 import { InteractiveObject } from "./components/interactives";
 import { HUD } from "./components/hud/Hud";
@@ -16,15 +17,32 @@ import { PhaserGame } from "./game/PhaserGame";
 
 
 function App() {
-type ModalType =
-  | "brush"
-  | "inventory"
-  | "rest"
-  | "feeding"
-  | "minigames"
-  | "ranking";
+  type ModalType =
+    | "brush"
+    | "inventory"
+    | "rest"
+    | "feeding"
+    | "minigames"
+    | "ranking";
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
+
+  useEffect(() => {
+    async function carregarDados() {
+      try {
+        const carteira = await getWallet();
+        const inventario = await getInventory();
+
+        console.log("Carteira:", carteira);
+        console.log("Inventário:", inventario);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    }
+
+    carregarDados();
+  }, []);
+
   return (
     <main className="game-screen">
       <div className="game-frame">
@@ -39,7 +57,7 @@ type ModalType =
           onOpenMinigames={() => setActiveModal("minigames")}
         />
         <PhaserGame />
-        
+
         {/* Objetos interativos do cenário */}
         <InteractiveObject
           label="Mochila"

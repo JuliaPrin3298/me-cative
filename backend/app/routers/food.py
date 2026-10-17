@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
 from app.services.food_service import comprar_comida
-
+from app.models.inventory import Inventory
 
 router = APIRouter(
     prefix="/api/foods",
@@ -50,3 +50,23 @@ def buy_food(
             status_code=400,
             detail=str(error),
         )
+        
+@router.get("/inventory")
+def get_inventory(
+    db: Session = Depends(get_db),
+):
+    inventarios = (
+        db.query(Inventory)
+        .filter(Inventory.usuario_id == 1)
+        .all()
+    )
+
+    return [
+        {
+            "food_id": inventario.food.id,
+            "nome": inventario.food.nome,
+            "preco": inventario.food.preco,
+            "quantidade": inventario.quantidade,
+        }
+        for inventario in inventarios
+    ]
