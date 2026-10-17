@@ -19,3 +19,13 @@ export async function getInventory() {
 
   return response.json();
 }
+
+export async function getFox() {
+  const response = await fetch(`${API_URL}/api/fox`);
+
+  if (!response.ok) {
+    throw new Error("Não foi possível carregar o estado da Raposa.");
+  }
+
+  return response.json();
+}

@@ -25,7 +25,24 @@ def get_db():
         yield db
     finally:
         db.close()
+        
+@router.get("")
+def get_fox(db: Session = Depends(get_db)):
+    raposa = db.query(Fox).first()
 
+    if not raposa:
+        raise HTTPException(
+            status_code=404,
+            detail="Raposa não encontrada.",
+        )
+
+    return {
+        "id": raposa.id,
+        "fome": raposa.fome,
+        "energia": raposa.energia,
+        "humor": raposa.humor,
+        "vinculo": raposa.vinculo,
+    }        
 
 @router.post("/feed")
 def feed_fox(db: Session = Depends(get_db)):
