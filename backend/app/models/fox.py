@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from sqlalchemy import ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -16,6 +18,11 @@ class Fox(Base):
         ForeignKey("users.id"),
         unique=True,
         nullable=False,
+    )
+
+    usuario: Mapped["User"] = relationship(
+    "User",
+    back_populates="fox",
     )
 
     fome: Mapped[int] = mapped_column(
