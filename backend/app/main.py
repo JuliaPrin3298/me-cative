@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.database.base import Base
 from app.database.connection import engine
 from app.models.user import User
+from app.models.fox import Fox
 
 app = FastAPI(
     title="Me Cative API",
