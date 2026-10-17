@@ -5,8 +5,10 @@ from app.database.connection import engine
 from app.models.user import User
 from app.models.fox import Fox
 from app.models.food import Food
+from app.models.wallet import Wallet
 from app.models.inventory import Inventory
 from app.routers.fox import router as fox_router
+from app.routers.wallet import router as wallet_router
 
 app = FastAPI(
     title="Me Cative API",
@@ -14,6 +16,7 @@ app = FastAPI(
 )
 
 app.include_router(fox_router)
+app.include_router(wallet_router)
 
 Base.metadata.create_all(bind=engine)
 
