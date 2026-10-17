@@ -26,22 +26,26 @@ function App() {
     | "ranking";
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
+  const [estrelas, setEstrelas] = useState(0);
 
   useEffect(() => {
-    async function carregarDados() {
-      try {
-        const carteira = await getWallet();
-        const inventario = await getInventory();
+  async function carregarDados() {
+    try {
+      const carteira = await getWallet();
+      const inventario = await getInventory();
 
-        console.log("Carteira:", carteira);
-        console.log("Inventário:", inventario);
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-      }
+      console.log("Carteira recebida:", carteira);
+      console.log("Estrelas recebidas:", carteira.estrelas);
+
+      setEstrelas(carteira.estrelas);
+      console.log("Inventário:", inventario);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
     }
+  }
 
-    carregarDados();
-  }, []);
+  carregarDados();
+}, []);
 
   return (
     <main className="game-screen">
@@ -51,7 +55,7 @@ function App() {
           aria-label="Campo durante o dia"
         />
         <HUD
-          stars={1200}
+          stars={estrelas}
           onOpenRanking={() => setActiveModal("ranking")}
           onToggleMusic={() => console.log("Alternar música")}
           onOpenMinigames={() => setActiveModal("minigames")}
