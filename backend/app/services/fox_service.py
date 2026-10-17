@@ -12,3 +12,12 @@ def alimentar_raposa(db: Session, raposa: Fox) -> Fox:
     db.refresh(raposa)
 
     return raposa
+
+def pentear_raposa(db: Session, raposa: Fox) -> Fox:
+    raposa.humor = min(100, raposa.humor + 10)
+    raposa.vinculo += 2
+
+    db.commit()
+    db.refresh(raposa)
+
+    return raposa
