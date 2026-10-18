@@ -5,37 +5,59 @@ import "./HUD.css";
 
 interface HUDProps {
   stars: number;
+  fome: number;
+  energia: number;
+  humor: number;
   onOpenRanking: () => void;
   onToggleMusic: () => void;
   onOpenMinigames: () => void;
 }
 
-const initialStatus: StatusItem[] = [
-  {
-    id: "bond",
-    label: "Vínculo",
-    icon: "✨",
-    value: 80,
-    color: "linear-gradient(90deg, #243db8, #35ead5)",
-  },
-  {
-    id: "hunger",
-    label: "Fome",
-    icon: "🧺",
-    value: 65,
-    color: "linear-gradient(90deg, #ffb02e, #ff4d42)",
-  },
-  {
-    id: "happiness",
-    label: "Felicidade",
-    icon: "⭐",
-    value: 90,
-    color: "linear-gradient(90deg, #a67bd0, #37f18a)",
-  },
-];
+function getHumorIcon(humor: number) {
+  if (humor >= 70) {
+    return "/assets/ui/starHappy.png";
+  }
+
+  if (humor >= 40) {
+    return "/assets/ui/starNeutral.png";
+  }
+
+  return "/assets/ui/starSad.png";
+}
+
+const initialStatus = (
+  fome: number,
+  energia: number,
+  humor: number,
+): StatusItem[] => [
+    {
+      id: "bond",
+      label: "Energia",
+      iconSrc: "/assets/ui/sleep.png",
+      value: energia,
+      color: "linear-gradient(90deg, #243db8, #35ead5)",
+    },
+    {
+      id: "hunger",
+      label: "Fome",
+      iconSrc: "/assets/ui/hungry.png",
+      value: fome,
+      color: "linear-gradient(90deg, #ffb02e, #ff4d42)",
+    },
+    {
+      id: "happiness",
+      label: "Humor",
+      iconSrc: getHumorIcon(humor),
+      value: humor,
+      color: "linear-gradient(90deg, #a67bd0, #37f18a)",
+    },
+  ];
 
 export function HUD({
   stars,
+  fome,
+  energia,
+  humor,
   onOpenRanking,
   onToggleMusic,
   onOpenMinigames,
@@ -43,7 +65,9 @@ export function HUD({
   return (
     <div className="game-hud">
       <div className="hud-status">
-        <StatusPanel items={initialStatus} />
+        <StatusPanel
+          items={initialStatus(fome, energia, humor)}
+        />
       </div>
 
       <div className="hud-currency">

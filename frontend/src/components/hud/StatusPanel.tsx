@@ -3,7 +3,7 @@ import "./StatusPanel.css";
 export interface StatusItem {
   id: string;
   label: string;
-  icon: string;
+  iconSrc: string;
   value: number;
   color: string;
 }
@@ -18,7 +18,7 @@ export function StatusPanel({ items }: StatusPanelProps) {
       {items.map((item) => (
         <div className="status-row" key={item.id}>
           <span className="status-icon" aria-hidden="true">
-            {item.icon}
+            <img src={item.iconSrc} alt="" />
           </span>
 
           <div
