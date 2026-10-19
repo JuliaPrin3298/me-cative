@@ -1,89 +1,92 @@
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.models.food import Food
 from app.models.inventory import Inventory
 from app.models.wallet import Wallet
 
-def criar_comida(
-    db: Session,
-    nome: str,
-    preco: int,
-) -> Food:
-    if preco <= 0:
-        raise ValueError("O preço deve ser maior que zero.")
+router = APIRouter(
+    prefix="/api/foods",
+    tags=["Foods"],
+)
 
-    comida = Food(
-        nome=nome,
-        preco=preco,
-    )
 
-    db.add(comida)
-    db.commit()
-    db.refresh(comida)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    return comida
 
-from app.database.connection import SessionLocal
-from app.models.food import Food
+class BuyFoodRequest(BaseModel):
+    food_id: int
 
-db = SessionLocal()
 
-comida = db.query(Food).filter(Food.nome == "Maçã").first()
+@router.get("")
+def listar_comidas(db: Session = Depends(get_db)):
+    comidas = db.query(Food).order_by(Food.id).all()
 
-print(comida.id if comida else "Maçã não encontrada")
-print(comida.nome if comida else "")
-print(comida.preco if comida else "")
+    return [
+        {
+            "id": comida.id,
+            "nome": comida.nome,
+            "preco": comida.preco,
+        }
+        for comida in comidas
+    ]
 
-db.close()
 
+@router.post("/buy")
 def comprar_comida(
-    db: Session,
-    usuario_id: int,
-    food_id: int,
-) -> Inventory:
-    comida = (
-        db.query(Food)
-        .filter(Food.id == food_id)
-        .first()
-    )
+    request: BuyFoodRequest,
+    db: Session = Depends(get_db),
+):
+    try:
+        inventario = comprar_comida(
+            db,
+            usuario_id=1,
+            food_id=request.food_id,
+        )
 
-    if not comida:
-        raise ValueError("Comida não encontrada.")
+        carteira = (
+            db.query(Wallet)
+            .filter(Wallet.usuario_id == 1)
+            .first()
+        )
 
-    carteira = (
-        db.query(Wallet)
-        .filter(Wallet.usuario_id == usuario_id)
-        .first()
-    )
+        return {
+            "message": "Comida comprada com sucesso.",
+            "inventario_id": inventario.id,
+            "usuario_id": inventario.usuario_id,
+            "food_id": inventario.food_id,
+            "quantidade": inventario.quantidade,
+            "estrelas": carteira.estrelas,
+        }
 
-    if not carteira:
-        raise ValueError("Carteira não encontrada.")
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
 
-    if carteira.estrelas < comida.preco:
-        raise ValueError("Estrelas insuficientes.")
 
-    inventario = (
+@router.get("/inventory")
+def get_inventory(db: Session = Depends(get_db)):
+    inventarios = (
         db.query(Inventory)
-        .filter(
-            Inventory.usuario_id == usuario_id,
-            Inventory.food_id == food_id,
-        )
-        .first()
+        .filter(Inventory.usuario_id == 1)
+        .all()
     )
 
-    if inventario:
-        inventario.quantidade += 1
-    else:
-        inventario = Inventory(
-            usuario_id=usuario_id,
-            food_id=food_id,
-            quantidade=1,
-        )
-        db.add(inventario)
-
-    carteira.estrelas -= comida.preco
-
-    db.commit()
-    db.refresh(inventario)
-
-    return inventario
+    return [
+        {
+            "food_id": item.food.id,
+            "nome": item.food.nome,
+            "preco": item.food.preco,
+            "quantidade": item.quantidade,
+        }
+        for item in inventarios
+    ]
