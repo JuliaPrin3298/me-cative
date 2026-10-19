@@ -8,6 +8,7 @@ from app.models.food import Food
 from app.models.inventory import Inventory
 from app.models.wallet import Wallet
 from app.services.food_service import comprar_comida as executar_compra
+from app.models.food import Food
 
 
 router = APIRouter(
@@ -31,6 +32,7 @@ class BuyFoodRequest(BaseModel):
 @router.get("/")
 def listar_comidas(db: Session = Depends(get_db)):
     comidas = db.query(Food).order_by(Food.id).all()
+    comidas = db.query(Food).all()
 
     return [
         {
@@ -40,7 +42,6 @@ def listar_comidas(db: Session = Depends(get_db)):
         }
         for comida in comidas
     ]
-
 
 @router.post("/buy")
 def comprar_comida(

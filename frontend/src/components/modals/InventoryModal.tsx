@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { ModalBase } from "./ModalBase";
 import "./InventoryModal.css";
+
 import { HUD } from "../hud/Hud";
 import { CurrencyDisplay } from "../hud/CurrencyDisplay";
+
 interface Props {
   onClose: () => void;
   stars: number;
@@ -27,6 +29,7 @@ const API_URL = "http://127.0.0.1:8000";
 const produtosVisuais: Record<
   string,
   {
+
     imagem: string;
     left: string;
     top: string;
@@ -211,7 +214,6 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
       <div className="hud-currency">
         <CurrencyDisplay amount={saldoLocal} />
       </div>
-
       <div className="store-scene">
         <img
           className="store-background"
