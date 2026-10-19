@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { ModalBase } from "./ModalBase";
 import "./InventoryModal.css";
-
+import { HUD } from "../hud/Hud";
+import { CurrencyDisplay } from "../hud/CurrencyDisplay";
 interface Props {
   onClose: () => void;
   stars: number;
@@ -208,7 +209,7 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
   return (
     <ModalBase title="Loja da Raposa" onClose={onClose}>
       <div className="hud-currency">
-        <span>⭐ {saldoLocal}</span>
+        <CurrencyDisplay amount={saldoLocal} />
       </div>
 
       <div className="store-scene">

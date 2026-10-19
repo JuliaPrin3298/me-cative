@@ -2,6 +2,13 @@
     width: 100%;
 }
 
+/* Diminui o saldo do HUD dentro da loja */
+.hud-currency {
+  transform: scale(0.75);
+  transform-origin: top right;
+}
+
+
 /* =========================================
    CENÁRIO
 ========================================= */
@@ -48,8 +55,8 @@
     align-items: center;
     justify-content: center;
 
-    width: clamp(55px, 8vw, 105px);
-    height: clamp(55px, 8vw, 105px);
+    width: clamp(40px, 8vw, 70px);
+    height: clamp(40px, 8vw, 70px);
 
     padding: 6px;
 
