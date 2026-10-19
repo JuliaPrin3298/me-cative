@@ -48,8 +48,8 @@
     align-items: center;
     justify-content: center;
 
-    width: clamp(55px, 8vw, 105px);
-    height: clamp(55px, 8vw, 105px);
+    width: clamp(30px, 8vw, 70px);
+    height: clamp(30px, 8vw, 70px);
 
     padding: 6px;
 
@@ -151,7 +151,7 @@
     position: absolute;
 
     right: -8%;
-    top: 58%;
+    top: 48%;
 
     display: flex;
     align-items: center;
