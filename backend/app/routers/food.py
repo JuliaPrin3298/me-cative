@@ -1,11 +1,15 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
-from app.services.food_service import comprar_comida
-from app.models.inventory import Inventory
 from app.models.food import Food
+from app.models.inventory import Inventory
+from app.models.wallet import Wallet
+from app.services.food_service import comprar_comida as executar_compra
+from app.models.food import Food
+
 
 router = APIRouter(
     prefix="/api/foods",
@@ -15,7 +19,6 @@ router = APIRouter(
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
     finally:
@@ -28,6 +31,7 @@ class BuyFoodRequest(BaseModel):
 
 @router.get("/")
 def listar_comidas(db: Session = Depends(get_db)):
+    comidas = db.query(Food).order_by(Food.id).all()
     comidas = db.query(Food).all()
 
     return [
@@ -40,16 +44,28 @@ def listar_comidas(db: Session = Depends(get_db)):
     ]
 
 @router.post("/buy")
-def buy_food(
+def comprar_comida(
     request: BuyFoodRequest,
     db: Session = Depends(get_db),
 ):
     try:
-        inventario = comprar_comida(
+        inventario = executar_compra(
             db,
             usuario_id=1,
             food_id=request.food_id,
         )
+
+        carteira = (
+            db.query(Wallet)
+            .filter(Wallet.usuario_id == inventario.usuario_id)
+            .first()
+        )
+
+        if not carteira:
+            raise HTTPException(
+                status_code=404,
+                detail="Carteira não encontrada.",
+            )
 
         return {
             "message": "Comida comprada com sucesso.",
@@ -57,6 +73,7 @@ def buy_food(
             "usuario_id": inventario.usuario_id,
             "food_id": inventario.food_id,
             "quantidade": inventario.quantidade,
+            "estrelas": carteira.estrelas,
         }
 
     except ValueError as error:
@@ -64,11 +81,10 @@ def buy_food(
             status_code=400,
             detail=str(error),
         )
-        
+
+
 @router.get("/inventory")
-def get_inventory(
-    db: Session = Depends(get_db),
-):
+def get_inventory(db: Session = Depends(get_db)):
     inventarios = (
         db.query(Inventory)
         .filter(Inventory.usuario_id == 1)
@@ -77,10 +93,10 @@ def get_inventory(
 
     return [
         {
-            "food_id": inventario.food.id,
-            "nome": inventario.food.nome,
-            "preco": inventario.food.preco,
-            "quantidade": inventario.quantidade,
+            "food_id": item.food.id,
+            "nome": item.food.nome,
+            "preco": item.food.preco,
+            "quantidade": item.quantidade,
         }
-        for inventario in inventarios
+        for item in inventarios
     ]

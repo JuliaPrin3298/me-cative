@@ -1,29 +1,28 @@
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.models.food import Food
 from app.models.inventory import Inventory
 from app.models.wallet import Wallet
 
-router = APIRouter(
-    prefix="/api/foods",
-    tags=["Foods"],
-)
+def criar_comida(
+    db: Session,
+    nome: str,
+    preco: int,
+) -> Food:
+    if preco <= 0:
+        raise ValueError("O preço deve ser maior que zero.")
 
+    comida = Food(
+        nome=nome,
+        preco=preco,
+    )
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    db.add(comida)
+    db.commit()
+    db.refresh(comida)
 
-
-class BuyFoodRequest(BaseModel):
-    food_id: int
-
+    return comida
 
 @router.get("")
 def listar_comidas(db: Session = Depends(get_db)):
@@ -72,21 +71,11 @@ def comprar_comida(
             detail=str(error),
         )
 
+    try:
+        db.commit()
+        db.refresh(inventario)
+    except Exception:
+        db.rollback()
+        raise
 
-@router.get("/inventory")
-def get_inventory(db: Session = Depends(get_db)):
-    inventarios = (
-        db.query(Inventory)
-        .filter(Inventory.usuario_id == 1)
-        .all()
-    )
-
-    return [
-        {
-            "food_id": item.food.id,
-            "nome": item.food.nome,
-            "preco": item.food.preco,
-            "quantidade": item.quantidade,
-        }
-        for item in inventarios
-    ]
+    return inventario
