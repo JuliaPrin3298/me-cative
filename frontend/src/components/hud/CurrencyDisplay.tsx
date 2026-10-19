@@ -1,9 +1,10 @@
+
 interface CurrencyDisplayProps {
-  amount: number;
+  amount?: number;
 }
 
 export function CurrencyDisplay({
-  amount,
+  amount = 0,
 }: CurrencyDisplayProps) {
   return (
     <div className="currency-display">

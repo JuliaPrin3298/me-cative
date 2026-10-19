@@ -1,5 +1,7 @@
 import { ModalBase } from "./ModalBase";
 import "./InventoryModal.css";
+import "../hud/Hud.css";
+import { CurrencyDisplay } from "../hud/CurrencyDisplay";
 
 interface Props {
   onClose: () => void;
@@ -9,7 +11,7 @@ const produtos = [
   {
     id: "morango",
     nome: "Morango",
-    preco: 20,
+    preco: 10,
     imagem: "/assets/objects/morango.png",
     posicao: {
       left: "32%",
@@ -19,7 +21,7 @@ const produtos = [
   {
     id: "paoEstrela",
     nome: "Pão Estrela",
-    preco: 30,
+    preco: 20,
     imagem: "/assets/objects/paoEstrela.png",
     posicao: {
       left: "42%",
@@ -39,7 +41,7 @@ const produtos = [
   {
     id: "amora",
     nome: "Amora",
-    preco: 20,
+    preco: 12,
     imagem: "/assets/objects/amora.png",
     posicao: {
       left: "62%",
@@ -59,24 +61,24 @@ const produtos = [
   {
     id: "coxaFrango",
     nome: "Coxa de Frango",
-    preco: 30,
+    preco: 28,
     imagem: "/assets/objects/coxaFrango.png",
     posicao: {
       left: "32%",
       top: "45%",
     },
   },
-   {
+  {
     id: "fruta",
     nome: "Fruta Mistério",
-    preco: 40,
+    preco: 80,
     imagem: "/assets/objects/fruta.png",
     posicao: {
       left: "42%",
       top: "41%",
     },
   },
-   {
+  {
     id: "linguica",
     nome: "Linguiça",
     preco: 25,
@@ -86,7 +88,7 @@ const produtos = [
       top: "45%",
     },
   },
-   {
+  {
     id: "mirtilo",
     nome: "Mirtilos",
     preco: 15,
@@ -96,40 +98,40 @@ const produtos = [
       top: "44%",
     },
   },
-   {
+  {
     id: "peixe",
     nome: "Peixe Assado",
-    preco: 30,
+    preco: 32,
     imagem: "/assets/objects/peixe.png",
     posicao: {
       left: "72%",
       top: "45%",
     },
   },
- {
+  {
     id: "sopa",
     nome: "Sopa",
-    preco: 30,
+    preco: 26,
     imagem: "/assets/objects/sopa.png",
     posicao: {
       left: "32%",
       top: "60%",
     },
   },
-   {
+  {
     id: "sucoLaranja",
     nome: "Suco de Laranja",
-    preco: 30,
+    preco: 17,
     imagem: "/assets/objects/sucoLaranja.png",
     posicao: {
       left: "42%",
       top: "60%",
     },
   },
-   {
+  {
     id: "sucoUva",
     nome: "Suco de Uva",
-    preco: 30,
+    preco: 16,
     imagem: "/assets/objects/sucoUva.png",
     posicao: {
       left: "52%",
@@ -138,9 +140,21 @@ const produtos = [
   },
 ];
 
-export function InventoryModal({ onClose }: Props) {
+
+interface Props {
+  onClose: () => void;
+  stars: number;
+}
+
+export function InventoryModal({ onClose, stars }: Props) {
   return (
-    <ModalBase title="Loja da Raposa" onClose={onClose}>
+    <ModalBase
+      title="Loja da Raposa"
+      onClose={onClose}
+    >
+      <div className="hud-currency">
+        <CurrencyDisplay amount={stars} />
+      </div>
       <div className="store-scene">
         <img
           className="store-background"
