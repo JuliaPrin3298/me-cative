@@ -1,8 +1,10 @@
+
 from sqlalchemy.orm import Session
 
 from app.models.food import Food
 from app.models.inventory import Inventory
 from app.models.wallet import Wallet
+
 
 def criar_comida(
     db: Session,
@@ -23,18 +25,6 @@ def criar_comida(
 
     return comida
 
-from app.database.connection import SessionLocal
-from app.models.food import Food
-
-db = SessionLocal()
-
-comida = db.query(Food).filter(Food.nome == "Maçã").first()
-
-print(comida.id if comida else "Maçã não encontrada")
-print(comida.nome if comida else "")
-print(comida.preco if comida else "")
-
-db.close()
 
 def comprar_comida(
     db: Session,
@@ -83,7 +73,11 @@ def comprar_comida(
 
     carteira.estrelas -= comida.preco
 
-    db.commit()
-    db.refresh(inventario)
+    try:
+        db.commit()
+        db.refresh(inventario)
+    except Exception:
+        db.rollback()
+        raise
 
     return inventario

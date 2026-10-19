@@ -111,7 +111,11 @@ function App() {
         )}
 
         {activeModal === "inventory" && (
-          <InventoryModal onClose={() => setActiveModal(null)} />
+          <InventoryModal
+            onClose={() => setActiveModal(null)}
+            stars={estrelas}
+            onStarsChange={setEstrelas}
+          />
         )}
 
         {activeModal === "rest" && (
