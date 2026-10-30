@@ -5,6 +5,7 @@ from app.models.food import Food
 from app.models.inventory import Inventory
 from app.models.wallet import Wallet
 
+
 def criar_comida(
     db: Session,
     nome: str,
@@ -24,58 +25,56 @@ def criar_comida(
 
     return comida
 
-@router.get("")
-def listar_comidas(db: Session = Depends(get_db)):
-    comidas = db.query(Food).order_by(Food.id).all()
 
-    return [
-        {
-            "id": comida.id,
-            "nome": comida.nome,
-            "preco": comida.preco,
-        }
-        for comida in comidas
-    ]
-
-
-@router.post("/buy")
 def comprar_comida(
-    request: BuyFoodRequest,
-    db: Session = Depends(get_db),
-):
+    db: Session,
+    usuario_id: int,
+    food_id: int,
+) -> Inventory:
     try:
-        inventario = comprar_comida(
-            db,
-            usuario_id=1,
-            food_id=request.food_id,
-        )
+        comida = db.query(Food).filter(Food.id == food_id).first()
+
+        if not comida:
+            raise ValueError("Comida não encontrada.")
 
         carteira = (
             db.query(Wallet)
-            .filter(Wallet.usuario_id == 1)
+            .filter(Wallet.usuario_id == usuario_id)
             .first()
         )
 
-        return {
-            "message": "Comida comprada com sucesso.",
-            "inventario_id": inventario.id,
-            "usuario_id": inventario.usuario_id,
-            "food_id": inventario.food_id,
-            "quantidade": inventario.quantidade,
-            "estrelas": carteira.estrelas,
-        }
+        if not carteira:
+            raise ValueError("Carteira não encontrada.")
 
-    except ValueError as error:
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
+        if carteira.estrelas < comida.preco:
+            raise ValueError("Saldo insuficiente.")
+
+        inventario = (
+            db.query(Inventory)
+            .filter(
+                Inventory.usuario_id == usuario_id,
+                Inventory.food_id == food_id,
+            )
+            .first()
         )
 
-    try:
+        carteira.estrelas -= comida.preco
+
+        if inventario:
+            inventario.quantidade += 1
+        else:
+            inventario = Inventory(
+                usuario_id=usuario_id,
+                food_id=food_id,
+                quantidade=1,
+            )
+            db.add(inventario)
+
         db.commit()
         db.refresh(inventario)
+
+        return inventario
+
     except Exception:
         db.rollback()
         raise
-
-    return inventario

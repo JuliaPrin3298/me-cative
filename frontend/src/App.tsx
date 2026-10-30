@@ -2,6 +2,7 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import { getWallet, getInventory, getFox } from "./services/api";
+import { carregarProgresso, salvarProgresso } from "./services/localStorage";
 
 import { InteractiveObject } from "./components/interactives";
 import { HUD } from "./components/hud/Hud";
@@ -30,23 +31,43 @@ function App() {
   const [fome, setFome] = useState(0);
   const [energia, setEnergia] = useState(0);
   const [humor, setHumor] = useState(0);
+  const [dadosCarregados, setDadosCarregados] = useState(false);
+
+
 
   useEffect(() => {
     async function carregarDados() {
+      const progresso = carregarProgresso();
+
+      if (progresso) {
+        setEstrelas(progresso.estrelas);
+        setFome(progresso.fome);
+        setEnergia(progresso.energia);
+        setHumor(progresso.humor);
+
+        setDadosCarregados(true);
+        return;
+      }
+
       try {
         const carteira = await getWallet();
         const inventario = await getInventory();
         const raposa = await getFox();
 
-        console.log("Carteira recebida:", carteira);
-        console.log("Estrelas recebidas:", carteira.estrelas);
-
         setEstrelas(carteira.estrelas);
         setFome(raposa.fome);
         setEnergia(raposa.energia);
         setHumor(raposa.humor);
-        console.log("Inventário:", inventario);
-        console.log("Estado da Raposa:", raposa);
+
+        salvarProgresso({
+          estrelas: carteira.estrelas,
+          fome: raposa.fome,
+          energia: raposa.energia,
+          humor: raposa.humor,
+          inventario,
+        });
+
+        setDadosCarregados(true);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       }
@@ -54,6 +75,24 @@ function App() {
 
     carregarDados();
   }, []);
+
+
+  useEffect(() => {
+    if (!dadosCarregados) return;
+
+    const progresso = carregarProgresso();
+
+    if (!progresso) return;
+
+    salvarProgresso({
+      ...progresso,
+      estrelas,
+      fome,
+      energia,
+      humor,
+    });
+  }, [dadosCarregados, estrelas, fome, energia, humor]);
+
 
   return (
     <main className="game-screen">
