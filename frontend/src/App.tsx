@@ -31,6 +31,9 @@ function App() {
   const [fome, setFome] = useState(0);
   const [energia, setEnergia] = useState(0);
   const [humor, setHumor] = useState(0);
+  const [dadosCarregados, setDadosCarregados] = useState(false);
+
+
 
   useEffect(() => {
     async function carregarDados() {
@@ -42,6 +45,7 @@ function App() {
         setEnergia(progresso.energia);
         setHumor(progresso.humor);
 
+        setDadosCarregados(true);
         return;
       }
 
@@ -62,6 +66,8 @@ function App() {
           humor: raposa.humor,
           inventario,
         });
+
+        setDadosCarregados(true);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       }
@@ -69,6 +75,24 @@ function App() {
 
     carregarDados();
   }, []);
+
+
+  useEffect(() => {
+    if (!dadosCarregados) return;
+
+    const progresso = carregarProgresso();
+
+    if (!progresso) return;
+
+    salvarProgresso({
+      ...progresso,
+      estrelas,
+      fome,
+      energia,
+      humor,
+    });
+  }, [dadosCarregados, estrelas, fome, energia, humor]);
+
 
   return (
     <main className="game-screen">

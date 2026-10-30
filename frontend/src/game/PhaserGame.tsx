@@ -1,22 +1,26 @@
-
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
 import { MeadowScene } from "./scenes/MeadowScene";
 import "./PhaserGame.css";
 
-export function PhaserGame() {
+interface Props {
+    scene?: typeof Phaser.Scene;
+}
+
+export function PhaserGame({ scene: SceneClass = MeadowScene }: Props) {
     const gameContainer = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!gameContainer.current) return;
+        const container = gameContainer.current;
+        if (!container) return;
 
         const game = new Phaser.Game({
             type: Phaser.AUTO,
-            parent: gameContainer.current,
+            parent: container,
             transparent: true,
-            width: gameContainer.current.clientWidth,
-            height: gameContainer.current.clientHeight,
-            scene: [MeadowScene],
+            width: container.clientWidth,
+            height: container.clientHeight,
+            scene: [SceneClass],
             scale: {
                 mode: Phaser.Scale.RESIZE,
                 autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -25,12 +29,15 @@ export function PhaserGame() {
                 antialias: true,
                 transparent: true,
             },
+            audio: {
+                noAudio: true,
+            },
         });
 
         return () => {
             game.destroy(true);
         };
-    }, []);
+    }, [SceneClass]);
 
     return <div ref={gameContainer} className="phaser-game" />;
 }
