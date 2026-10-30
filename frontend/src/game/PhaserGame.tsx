@@ -5,10 +5,16 @@ import "./PhaserGame.css";
 
 interface Props {
     scene?: typeof Phaser.Scene;
+    onReady?: (game: Phaser.Game) => void;
 }
 
-export function PhaserGame({ scene: SceneClass = MeadowScene }: Props) {
+export function PhaserGame({ scene: SceneClass = MeadowScene, onReady }: Props) {
     const gameContainer = useRef<HTMLDivElement>(null);
+    const onReadyRef = useRef(onReady);
+
+    useEffect(() => {
+        onReadyRef.current = onReady;
+    });
 
     useEffect(() => {
         const container = gameContainer.current;
@@ -33,6 +39,8 @@ export function PhaserGame({ scene: SceneClass = MeadowScene }: Props) {
                 noAudio: true,
             },
         });
+
+        onReadyRef.current?.(game);
 
         return () => {
             game.destroy(true);

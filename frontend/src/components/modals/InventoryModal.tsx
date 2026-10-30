@@ -111,8 +111,31 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
   const [mensagem, setMensagem] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [comprandoId, setComprandoId] = useState<number | null>(null);
+  const [comprados, setComprados] = useState<Record<number, number>>({});
 
 
+  const itensNoCarrinho = produtos
+    .filter((produto) => (comprados[produto.id] ?? 0) > 0)
+    .map((produto) => ({
+      id: produto.id,
+      nome: produto.nome,
+      quantidade: comprados[produto.id],
+    }));
+
+  const itensNaMochila = inventario
+    .map((item) => ({
+      ...item,
+      quantidade: item.quantidade - (comprados[item.food_id] ?? 0),
+    }))
+    .filter((item) => item.quantidade > 0);
+
+  function imagemDoProduto(nome: string): string | undefined {
+    const alvo = nome.trim().toLowerCase();
+
+    return Object.entries(produtosVisuais).find(
+      ([chave]) => chave.trim().toLowerCase() === alvo
+    )?.[1].imagem;
+  }
 
 
   useEffect(() => {
@@ -205,6 +228,11 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
       onStarsChange?.(estrelasAtualizadas);
       setInventario(inventarioAtualizado);
 
+      setComprados((atual) => ({
+        ...atual,
+        [produto.id]: (atual[produto.id] ?? 0) + 1,
+      }));
+
       setMensagem(`${produto.nome} comprado com sucesso!`);
     } catch (erro) {
       setMensagem(
@@ -244,9 +272,6 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
                 return null;
               }
 
-              console.log("Produtos recebidos da API:", produtos);
-              console.log("Produto:", produto.nome, "Imagem:", visual?.imagem);
-
               const comprando = comprandoId === produto.id;
 
               return (
@@ -275,28 +300,63 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
             })}
 
           <div className="fox-cart">
+            <div
+              className="cart-items"
+              role="list"
+              aria-label="Itens comprados no carrinho"
+            >
+              {itensNoCarrinho.map((item) => {
+                const imagem = imagemDoProduto(item.nome);
+
+                return (
+                  <span
+                    className="cart-item"
+                    role="listitem"
+                    // a key muda com a quantidade para repetir a animação de "cair no carrinho"
+                    key={`${item.id}-${item.quantidade}`}
+                  >
+                    {imagem && <img src={imagem} alt={item.nome} />}
+                    {item.quantidade > 1 && (
+                      <span className="cart-item-qty">{item.quantidade}</span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+
             <img
               src="/assets/objects/carrinho.png"
               alt="Carrinho da Raposa"
             />
           </div>
         </div>
-      </div>
 
-      {mensagem && <p role="status">{mensagem}</p>}
+        {mensagem && (
+          <p className="store-toast" role="status">
+            {mensagem}
+          </p>
+        )}
 
-      {inventario.length > 0 && (
-        <section aria-label="Inventário de alimentos">
-          <h3>Seus alimentos</h3>
-          <ul>
-            {inventario.map((item) => (
-              <li key={item.food_id}>
-                {item.nome} — quantidade: {item.quantidade}
-              </li>
-            ))}
+        {itensNaMochila.length > 0 && (
+          <ul className="inventory-mini" aria-label="Itens que você já tem">
+            {itensNaMochila.map((item) => {
+              const imagem = imagemDoProduto(item.nome);
+
+              return (
+                <li
+                  className="inventory-mini-item"
+                  key={item.food_id}
+                  title={item.nome}
+                  aria-label={`${item.nome}: ${item.quantidade}`}
+                >
+                  {imagem ? <img src={imagem} alt="" /> : <span>{item.nome}</span>}
+                  <span className="inventory-mini-qty">{item.quantidade}</span>
+                </li>
+              );
+            })}
           </ul>
-        </section>
-      )}
+        )}
+      </div>
     </ModalBase>
   );
 }
