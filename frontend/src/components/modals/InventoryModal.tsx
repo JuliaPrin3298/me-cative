@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ModalBase } from "./ModalBase";
 import "./InventoryModal.css";
 
-import { HUD } from "../hud/Hud";
 import { CurrencyDisplay } from "../hud/CurrencyDisplay";
 
 interface Props {
@@ -105,14 +104,11 @@ const produtosVisuais: Record<
 export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
   const [produtos, setProdutos] = useState<ProdutoAPI[]>([]);
   const [inventario, setInventario] = useState<ItemInventario[]>([]);
-  const [saldoLocal, setSaldoLocal] = useState(stars);
   const [mensagem, setMensagem] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [comprandoId, setComprandoId] = useState<number | null>(null);
 
-  useEffect(() => {
-    setSaldoLocal(stars);
-  }, [stars]);
+
 
   useEffect(() => {
     async function carregarDados() {
@@ -133,6 +129,8 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
         const dadosProdutos: ProdutoAPI[] = await respostaProdutos.json();
         const dadosInventario: ItemInventario[] =
           await respostaInventario.json();
+
+        console.table(dadosProdutos);
 
         setProdutos(dadosProdutos);
         setInventario(dadosInventario);
@@ -185,7 +183,6 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
       }
 
       if (typeof resultado.estrelas === "number") {
-        setSaldoLocal(resultado.estrelas);
         onStarsChange?.(resultado.estrelas);
       }
 
@@ -212,7 +209,7 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
   return (
     <ModalBase title="Loja da Raposa" onClose={onClose}>
       <div className="hud-currency">
-        <CurrencyDisplay amount={saldoLocal} />
+        <CurrencyDisplay amount={stars} />
       </div>
       <div className="store-scene">
         <img
@@ -226,9 +223,18 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
 
           {!carregando &&
             produtos.map((produto) => {
-              const visual = produtosVisuais[produto.nome];
+              const visual = Object.entries(produtosVisuais).find(
+                ([nome]) =>
+                  nome.trim().toLowerCase() === produto.nome.trim().toLowerCase()
+              )?.[1];
 
-              if (!visual) return null;
+              if (!visual) {
+                console.warn("Produto sem imagem cadastrada:", produto.nome);
+                return null;
+              }
+
+              console.log("Produtos recebidos da API:", produtos);
+              console.log("Produto:", produto.nome, "Imagem:", visual?.imagem);
 
               const comprando = comprandoId === produto.id;
 

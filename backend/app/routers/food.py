@@ -29,10 +29,10 @@ class BuyFoodRequest(BaseModel):
     food_id: int
 
 
+
 @router.get("/")
 def listar_comidas(db: Session = Depends(get_db)):
     comidas = db.query(Food).order_by(Food.id).all()
-    comidas = db.query(Food).all()
 
     return [
         {
@@ -42,6 +42,7 @@ def listar_comidas(db: Session = Depends(get_db)):
         }
         for comida in comidas
     ]
+
 
 @router.post("/buy")
 def comprar_comida(
