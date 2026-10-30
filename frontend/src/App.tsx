@@ -146,7 +146,11 @@ function App() {
         />
 
         {activeModal === "brush" && (
-          <BrushModal onClose={() => setActiveModal(null)} />
+          <BrushModal
+            onClose={() => setActiveModal(null)}
+            humor={humor}
+            onHumorChange={setHumor}
+          />
         )}
 
         {activeModal === "inventory" && (
@@ -162,7 +166,13 @@ function App() {
         )}
 
         {activeModal === "feeding" && (
-          <FeedingModal onClose={() => setActiveModal(null)} />
+          <FeedingModal
+            onClose={() => setActiveModal(null)}
+            fome={fome}
+            humor={humor}
+            onFomeChange={setFome}
+            onHumorChange={setHumor}
+          />
         )}
         {activeModal === "minigames" && (
           <MinigamesModal onClose={() => setActiveModal(null)} />
