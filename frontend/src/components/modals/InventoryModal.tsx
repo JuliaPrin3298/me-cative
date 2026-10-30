@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { ModalBase } from "./ModalBase";
 import "./InventoryModal.css";
+import {
+  carregarProgresso,
+  salvarProgresso,
+} from "../../services/localStorage";
 
 import { CurrencyDisplay } from "../hud/CurrencyDisplay";
 
@@ -110,34 +114,42 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
 
 
 
+
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [respostaProdutos, respostaInventario] = await Promise.all([
-          fetch(`${API_URL}/api/foods/`),
-          fetch(`${API_URL}/api/foods/inventory`),
-        ]);
+        const respostaProdutos = await fetch(`${API_URL}/api/foods/`);
 
         if (!respostaProdutos.ok) {
           throw new Error("Não foi possível carregar os produtos.");
         }
 
-        if (!respostaInventario.ok) {
-          throw new Error("Não foi possível carregar o inventário.");
-        }
-
         const dadosProdutos: ProdutoAPI[] = await respostaProdutos.json();
-        const dadosInventario: ItemInventario[] =
-          await respostaInventario.json();
-
-        console.table(dadosProdutos);
-
         setProdutos(dadosProdutos);
-        setInventario(dadosInventario);
-      } catch {
-        setMensagem(
-          "Erro ao carregar a loja. Confira se o backend está ligado.",
-        );
+
+        // Primeiro, tenta recuperar as compras salvas no navegador.
+        const progresso = carregarProgresso();
+
+        if (progresso) {
+          setInventario(progresso.inventario);
+        } else {
+          // Usa o inventário da API somente se não houver progresso salvo.
+          const respostaInventario = await fetch(
+            `${API_URL}/api/foods/inventory`
+          );
+
+          if (!respostaInventario.ok) {
+            throw new Error("Não foi possível carregar o inventário.");
+          }
+
+          const dadosInventario: ItemInventario[] =
+            await respostaInventario.json();
+
+          setInventario(dadosInventario);
+        }
+      } catch (erro) {
+        console.error("Erro ao carregar a loja:", erro);
+        setMensagem("Erro ao carregar a loja. Confira se o backend está ligado.");
       } finally {
         setCarregando(false);
       }
@@ -146,16 +158,6 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
     carregarDados();
   }, []);
 
-  async function carregarInventario() {
-    const resposta = await fetch(`${API_URL}/api/foods/inventory`);
-
-    if (!resposta.ok) {
-      throw new Error("Não foi possível atualizar o inventário.");
-    }
-
-    const dados: ItemInventario[] = await resposta.json();
-    setInventario(dados);
-  }
 
   async function comprarProduto(produto: ProdutoAPI) {
     if (comprandoId !== null) return;
@@ -164,42 +166,51 @@ export function InventoryModal({ onClose, stars, onStarsChange }: Props) {
     setMensagem("");
 
     try {
-      const resposta = await fetch(`${API_URL}/api/foods/buy`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const progresso = carregarProgresso();
+
+      if (!progresso) {
+        throw new Error(
+          "O progresso ainda não foi inicializado. Recarregue o jogo."
+        );
+      }
+
+      if (progresso.estrelas < produto.preco) {
+        throw new Error("Você não tem estrelas suficientes!");
+      }
+
+      const inventarioAtualizado = [...progresso.inventario];
+      const itemExistente = inventarioAtualizado.find(
+        (item) => item.food_id === produto.id
+      );
+
+      if (itemExistente) {
+        itemExistente.quantidade += 1;
+      } else {
+        inventarioAtualizado.push({
           food_id: produto.id,
-        }),
+          nome: produto.nome,
+          preco: produto.preco,
+          quantidade: 1,
+        });
+      }
+
+      const estrelasAtualizadas = progresso.estrelas - produto.preco;
+
+      salvarProgresso({
+        ...progresso,
+        estrelas: estrelasAtualizadas,
+        inventario: inventarioAtualizado,
       });
 
-      const resultado = await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(
-          resultado.detail || "Não foi possível comprar este produto.",
-        );
-      }
-
-      if (typeof resultado.estrelas === "number") {
-        onStarsChange?.(resultado.estrelas);
-      }
+      onStarsChange?.(estrelasAtualizadas);
+      setInventario(inventarioAtualizado);
 
       setMensagem(`${produto.nome} comprado com sucesso!`);
-
-      try {
-        await carregarInventario();
-      } catch {
-        setMensagem(
-          `${produto.nome} comprado, mas não foi possível atualizar o inventário.`,
-        );
-      }
     } catch (erro) {
       setMensagem(
         erro instanceof Error
           ? erro.message
-          : "Ocorreu um erro ao realizar a compra.",
+          : "Ocorreu um erro ao realizar a compra."
       );
     } finally {
       setComprandoId(null);
